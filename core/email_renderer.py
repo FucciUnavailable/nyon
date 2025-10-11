@@ -127,9 +127,13 @@ class PlainTextEmailRenderer:
             f"- {project.next_week}"
         )
     
-    def _render_summary(self, report: WeeklyReport) -> str:
-        """Render overall summary section."""
+    def _render_summary(self, report: WeeklyReport, github_stats: Optional[str] = None) -> str:
+        """Render overall summary section with optional GitHub stats."""
         bullets = "\n".join([f"- {bullet}" for bullet in report.summary_bullets])
+        
+        # Add GitHub stats as final bullet if provided
+        if github_stats:
+            bullets += f"\n- 💻 {github_stats}"
         
         milestone_date = (
             report.next_milestone_date.isoformat() 
@@ -142,6 +146,32 @@ class PlainTextEmailRenderer:
             f"Next Milestone:\n"
             f"- {report.next_milestone} — {milestone_date}"
         )
+    
+    def _render_body(
+        self,
+        report: WeeklyReport,
+        ai_intro: Optional[str],
+        github_stats: Optional[str]
+    ) -> str:
+        """Generate email body."""
+        parts = []
+        
+        # Add AI intro if provided
+        if ai_intro:
+            parts.append(f"🤖 {ai_intro}")
+            parts.append("---")
+        
+        # Standard sections (pass github_stats to summary)
+        parts.extend([
+            self._render_header(report),
+            self._render_projects(report),
+            self._render_summary(report, github_stats)  # <-- Pass it here
+        ])
+        
+        # Footer signature
+        parts.append(self._render_footer(report))
+        
+        return "\n\n".join(parts)
     
     def _render_footer(self, report: WeeklyReport) -> str:
         """Render email signature."""
