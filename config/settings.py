@@ -18,7 +18,17 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore"
     )
-    
+    # AI Summarizer settings
+    ai_system_prompt: str = Field(
+        default=(
+            "You are a helpful engineering assistant. "
+            "Provide concise 2-3 line summaries of engineering activity. "
+            "Be professional but friendly."
+        ),
+        description="System prompt for AI summarizer"
+    )
+    ai_max_tokens: int = Field(default=150, description="Max tokens for AI response")
+    ai_temperature: float = Field(default=0.7, description="AI creativity (0-1)")
     # GitHub settings
     github_token: str = Field(..., description="GitHub Personal Access Token")
     github_repos: str = Field(..., description="Comma-separated list of repos (owner/repo)")

@@ -1,9 +1,9 @@
 """
 Email template rendering for weekly engineering reports.
-Converts structured data into formatted email content.
+Converts structured data into formatted email content with optional AI intro.
 """
 
-from typing import Protocol
+from typing import Protocol, Optional
 from data.models import WeeklyReport, ProjectUpdate
 from utils.logger import setup_logger
 
@@ -13,7 +13,12 @@ logger = setup_logger(__name__)
 class EmailRenderer(Protocol):
     """Protocol for email renderers (allows dependency injection)."""
     
-    def render(self, report: WeeklyReport) -> tuple[str, str]:
+    def render(
+        self, 
+        report: WeeklyReport,
+        ai_intro: Optional[str] = None,
+        github_stats: Optional[str] = None
+    ) -> tuple[str, str]:
         """Render report to (subject, body) tuple."""
         ...
 
@@ -30,18 +35,25 @@ class PlainTextEmailRenderer:
         """
         self.include_emoji = include_emoji
     
-    def render(self, report: WeeklyReport) -> tuple[str, str]:
+    def render(
+        self,
+        report: WeeklyReport,
+        ai_intro: Optional[str] = None,
+        github_stats: Optional[str] = None
+    ) -> tuple[str, str]:
         """
         Render a weekly report to plain text email format.
         
         Args:
             report: Validated weekly report data
+            ai_intro: Optional AI-generated introduction (2-3 lines)
+            github_stats: Optional GitHub activity summary footer
         
         Returns:
             Tuple of (subject, body) strings
         """
         subject = self._render_subject(report)
-        body = self._render_body(report)
+        body = self._render_body(report, ai_intro, github_stats)
         
         logger.info(f"Rendered email for {len(report.projects)} projects")
         return subject, body
@@ -54,14 +66,35 @@ class PlainTextEmailRenderer:
             f"({report.get_project_list_str()})"
         )
     
-    def _render_body(self, report: WeeklyReport) -> str:
+    def _render_body(
+        self,
+        report: WeeklyReport,
+        ai_intro: Optional[str],
+        github_stats: Optional[str]
+    ) -> str:
         """Generate email body."""
-        parts = [
+        parts = []
+        
+        # Add AI intro if provided
+        if ai_intro:
+            parts.append(f"🤖 {ai_intro}")
+            parts.append("---")
+        
+        # Standard sections
+        parts.extend([
             self._render_header(report),
             self._render_projects(report),
-            self._render_summary(report),
-            self._render_footer(report)
-        ]
+            self._render_summary(report)
+        ])
+        
+        # Add GitHub stats footer if provided
+        if github_stats:
+            parts.append("---")
+            parts.append(github_stats)
+        
+        # Footer signature
+        parts.append(self._render_footer(report))
+        
         return "\n\n".join(parts)
     
     def _render_header(self, report: WeeklyReport) -> str:
@@ -146,7 +179,15 @@ if __name__ == "__main__":
     )
     
     renderer = PlainTextEmailRenderer()
-    subject, body = renderer.render(report)
+    
+    # With AI intro
+    ai_intro = (
+        "Hi there! This is Claude, Sebastian's AI assistant. "
+        "This week showed solid progress with our API Platform hitting all milestones. "
+        "No major blockers — we're on track for Sprint 15!"
+    )
+    
+    subject, body = renderer.render(report, ai_intro=ai_intro)
     
     rprint(f"[bold]SUBJECT:[/bold] {subject}\n")
     rprint(body)
