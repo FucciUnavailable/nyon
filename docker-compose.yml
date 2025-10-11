@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  weekly-report:
+    build: .
+    image: engineering-intelligence:latest
+    env_file:
+      - .env
+    volumes:
+      # Mount projects.json from host
+      - ./projects.json:/app/projects.json:ro
+      # Mount reports directory to persist outputs
+      - ./reports:/app/reports
+    command: python scripts/generate_weekly_report.py --input projects.json
+    networks:
+      - default
+
+  # Interactive wizard service
+  create-report:
+    build: .
+    image: engineering-intelligence:latest
+    env_file:
+      - .env
+    volumes:
+      - ./projects.json:/app/projects.json
+    stdin_open: true
+    tty: true
+    command: python scripts/create_projects_json.py --output projects.json
+    networks:
+      - default
+
+  # GitHub collector service
+  collect-github:
+    build: .
+    image: engineering-intelligence:latest
+    env_file:
+      - .env
+    volumes:
+      - ./reports:/app/reports
+    command: python scripts/collect_github_data.py --days 7
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
