@@ -286,7 +286,7 @@ class HTMLEmailRenderer:
             <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                 <tr>
                     <td style="padding: 8px 12px 8px 0; vertical-align: top; width: 100px; color: #5f6368; font-weight: 500;">
-                        Completed
+                        Completed ✅
                     </td>
                     <td style="padding: 8px 0; vertical-align: top; color: #202124; line-height: 1.5;">
                         {project.completed}
@@ -294,7 +294,7 @@ class HTMLEmailRenderer:
                 </tr>
                 <tr>
                     <td style="padding: 8px 12px 8px 0; vertical-align: top; color: #5f6368; font-weight: 500;">
-                        In Progress
+                        In Progress 🚧
                     </td>
                     <td style="padding: 8px 0; vertical-align: top; color: #202124; line-height: 1.5;">
                         {project.in_progress}
@@ -302,7 +302,7 @@ class HTMLEmailRenderer:
                 </tr>
                 <tr>
                     <td style="padding: 8px 12px 8px 0; vertical-align: top; color: #5f6368; font-weight: 500;">
-                        Blockers
+                        Blockers 🧱
                     </td>
                     <td style="padding: 8px 0; vertical-align: top; color: #202124; line-height: 1.5;">
                         {project.blockers}
@@ -310,7 +310,7 @@ class HTMLEmailRenderer:
                 </tr>
                 <tr>
                     <td style="padding: 8px 12px 8px 0; vertical-align: top; color: #5f6368; font-weight: 500;">
-                        Next Week
+                        Next Week 🎯
                     </td>
                     <td style="padding: 8px 0; vertical-align: top; color: #202124; line-height: 1.5;">
                         {project.next_week}
