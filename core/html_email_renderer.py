@@ -151,6 +151,20 @@ class HTMLEmailRenderer:
                 </div>
                 """
 
+        # Build GitHub stats section if exists
+        github_section = ""
+        if github_stats:
+            github_section = f"""
+                <div style="margin: 32px 0 0 0; padding: 16px 0; border-top: 1px solid #e8eaed;">
+                    <div style="font-size: 14px; font-weight: 600; color: #5f6368; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        💻 Week's Coding
+                    </div>
+                    <div style="font-size: 15px; color: #202124;">
+                        {github_stats}
+                    </div>
+                </div>
+                """
+
         # Build summary bullets
         summary_html = "\n".join(
             [
@@ -158,11 +172,6 @@ class HTMLEmailRenderer:
                 for bullet in report.summary_bullets
             ]
         )
-
-        # Build GitHub stats if exists
-        github_section = ""
-        if github_stats:
-            github_section = f'<div style="margin: 6px 0 0 0; color: #202124;">• {github_stats}</div>'
 
         # Build milestone
         milestone_date = (
@@ -215,6 +224,9 @@ class HTMLEmailRenderer:
         <!-- Bugs/Tickets Section -->
         {bugs_section}
 
+        <!-- GitHub Stats Section -->
+        {github_section}
+
         <!-- Overall Summary -->
         <div style="margin: 32px 0 0 0; padding: 16px 0; border-top: 1px solid #e8eaed;">
             <div style="font-size: 14px; font-weight: 600; color: #5f6368; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -222,7 +234,6 @@ class HTMLEmailRenderer:
             </div>
             <div style="font-size: 15px; line-height: 1.7;">
                 {summary_html}
-                {github_section}
             </div>
         </div>
 
@@ -421,12 +432,17 @@ class HTMLEmailRenderer:
                 parts.append(", ".join(items))
                 parts.append("")
 
+        # GitHub stats
+        if github_stats:
+            parts.append("WEEK'S CODING")
+            parts.append("-" * 60)
+            parts.append(github_stats)
+            parts.append("")
+
         parts.append("OVERALL SUMMARY")
         parts.append("-" * 60)
         for bullet in report.summary_bullets:
             parts.append(f"• {bullet}")
-        if github_stats:
-            parts.append(f"• {github_stats}")
         parts.append("")
 
         on_track = report.get_on_track_count()
