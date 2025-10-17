@@ -243,7 +243,7 @@ class HTMLEmailRenderer:
         <!-- Next Milestone -->
         <div style="margin: 24px 0 0 0; padding: 16px 0;">
             <div style="font-size: 14px; font-weight: 600; color: #5f6368; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                Next Milestone
+                📅 Next Milestone
             </div>
             <div style="font-size: 15px; color: #202124;">
                 {report.next_milestone} — {milestone_date}
