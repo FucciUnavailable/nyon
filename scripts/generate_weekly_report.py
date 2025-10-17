@@ -7,7 +7,7 @@ import asyncio
 import json
 from pathlib import Path
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import typer
 from rich.console import Console
@@ -165,8 +165,8 @@ def collect_github_stats(days: int) -> Optional[str]:
     try:
         # Collect GitHub data
         collector = GitHubCollector()
-        
-        until = datetime.utcnow()
+
+        until = datetime.now(timezone.utc)
         since = until - timedelta(days=days)
         
         github_report = collector.collect_activity(since=since, until=until)
