@@ -204,12 +204,11 @@ class HTMLEmailRenderer:
         {ai_section}
 
         <!-- Greeting -->
-        <div style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #202124;">
+        <div style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #202124; border-bottom: 2px solid #e8eaed;">
             Greetings Everyone,<br><br>
             Here's this week's progress across active projects:
         </div>
-        <!-- Divider -->
-        <div style="border-top: 1px solid #e8eaed; margin: 24px 0;"></div>
+
         <!-- Projects -->
         {projects_html}
 
@@ -275,8 +274,8 @@ class HTMLEmailRenderer:
                     <span style="display: inline-block;
                                   padding: 4px 10px;
                                   background-color: {self._get_status_bg(project.status)};
-                                  border-radius: 16px;
-                                  font-size: 20px;
+                                  border-radius: 12px;
+                                  font-size: 13px;
                                   font-weight: 700;
                                   color: {status_color};">
                         {status_emoji} {status_display}
