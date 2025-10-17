@@ -21,7 +21,7 @@ class HTMLEmailRenderer:
         self,
         report: WeeklyReport,
         ai_intro: Optional[str] = None,
-        github_stats: Optional[str] = None
+        github_stats: Optional[str] = None,
     ) -> tuple[str, str, str]:
         """
         Render a weekly report to HTML email format.
@@ -49,10 +49,7 @@ class HTMLEmailRenderer:
         )
 
     def _render_html_body(
-        self,
-        report: WeeklyReport,
-        ai_intro: Optional[str],
-        github_stats: Optional[str]
+        self, report: WeeklyReport, ai_intro: Optional[str], github_stats: Optional[str]
     ) -> str:
         """Generate HTML email body."""
 
@@ -82,20 +79,31 @@ class HTMLEmailRenderer:
             """
 
         # Build project sections
-        projects_html = "\n".join([
-            self._render_project(idx, project)
-            for idx, project in enumerate(report.projects, start=1)
-        ])
+        projects_html = "\n".join(
+            [
+                self._render_project(idx, project)
+                for idx, project in enumerate(report.projects, start=1)
+            ]
+        )
 
         # Build bugs/tickets section if exists
         bugs_section = ""
-        if hasattr(report, 'bugs_fixed') or hasattr(report, 'tickets_resolved') or hasattr(report, 'features_shipped'):
-            bugs_fixed = getattr(report, 'bugs_fixed', 0)
-            tickets_resolved = getattr(report, 'tickets_resolved', 0)
-            tickets_open = getattr(report, 'tickets_open', 0)
-            features_shipped = getattr(report, 'features_shipped', 0)
+        if (
+            hasattr(report, "bugs_fixed")
+            or hasattr(report, "tickets_resolved")
+            or hasattr(report, "features_shipped")
+        ):
+            bugs_fixed = getattr(report, "bugs_fixed", 0)
+            tickets_resolved = getattr(report, "tickets_resolved", 0)
+            tickets_open = getattr(report, "tickets_open", 0)
+            features_shipped = getattr(report, "features_shipped", 0)
 
-            if bugs_fixed > 0 or tickets_resolved > 0 or features_shipped > 0 or tickets_open > 0:
+            if (
+                bugs_fixed > 0
+                or tickets_resolved > 0
+                or features_shipped > 0
+                or tickets_open > 0
+            ):
                 parts = []
                 if tickets_resolved > 0 or tickets_open > 0:
                     total_tickets = tickets_resolved + tickets_open
@@ -111,7 +119,11 @@ class HTMLEmailRenderer:
                 ticket_graph = ""
                 if tickets_resolved > 0 or tickets_open > 0:
                     total_tickets = tickets_resolved + tickets_open
-                    resolved_pct = int((tickets_resolved / total_tickets) * 100) if total_tickets > 0 else 0
+                    resolved_pct = (
+                        int((tickets_resolved / total_tickets) * 100)
+                        if total_tickets > 0
+                        else 0
+                    )
                     open_pct = 100 - resolved_pct
 
                     ticket_graph = f"""
@@ -140,10 +152,12 @@ class HTMLEmailRenderer:
                 """
 
         # Build summary bullets
-        summary_html = "\n".join([
-            f'<div style="margin: 0 0 6px 0; color: #202124;">• {bullet}</div>'
-            for bullet in report.summary_bullets
-        ])
+        summary_html = "\n".join(
+            [
+                f'<div style="margin: 0 0 6px 0; color: #202124;">• {bullet}</div>'
+                for bullet in report.summary_bullets
+            ]
+        )
 
         # Build GitHub stats if exists
         github_section = ""
@@ -191,7 +205,7 @@ class HTMLEmailRenderer:
 
         <!-- Greeting -->
         <div style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #202124;">
-            Hi team,<br><br>
+            Greetings Everyone,<br><br>
             Here's this week's progress across active projects:
         </div>
 
@@ -309,19 +323,19 @@ class HTMLEmailRenderer:
     def _get_status_color(self, status: ProjectStatus) -> str:
         """Get text color for project status."""
         return {
-            ProjectStatus.ON_TRACK: "#15803d",      # Dark green
-            ProjectStatus.AHEAD: "#1e40af",         # Dark blue
+            ProjectStatus.ON_TRACK: "#15803d",  # Dark green
+            ProjectStatus.AHEAD: "#1e40af",  # Dark blue
             ProjectStatus.SLIGHT_DELAY: "#b45309",  # Dark amber
-            ProjectStatus.AT_RISK: "#b91c1c"        # Dark red
+            ProjectStatus.AT_RISK: "#b91c1c",  # Dark red
         }[status]
 
     def _get_status_bg(self, status: ProjectStatus) -> str:
         """Get background color for project status badge."""
         return {
-            ProjectStatus.ON_TRACK: "#dcfce7",      # Light green
-            ProjectStatus.AHEAD: "#dbeafe",         # Light blue
+            ProjectStatus.ON_TRACK: "#dcfce7",  # Light green
+            ProjectStatus.AHEAD: "#dbeafe",  # Light blue
             ProjectStatus.SLIGHT_DELAY: "#fef3c7",  # Light amber
-            ProjectStatus.AT_RISK: "#fee2e2"        # Light red
+            ProjectStatus.AT_RISK: "#fee2e2",  # Light red
         }[status]
 
     def _render_progress_chart(self, on_track: int, total: int) -> str:
@@ -353,16 +367,15 @@ class HTMLEmailRenderer:
         """
 
     def _render_plain_text_fallback(
-        self,
-        report: WeeklyReport,
-        ai_intro: Optional[str],
-        github_stats: Optional[str]
+        self, report: WeeklyReport, ai_intro: Optional[str], github_stats: Optional[str]
     ) -> str:
         """Generate plain text fallback."""
         parts = []
 
         parts.append(f"WEEKLY ENGINEERING UPDATE")
-        parts.append(f"{report.week_start.strftime('%B %d')} – {report.week_end.strftime('%B %d, %Y')}")
+        parts.append(
+            f"{report.week_start.strftime('%B %d')} – {report.week_end.strftime('%B %d, %Y')}"
+        )
         parts.append("=" * 60)
         parts.append("")
 
@@ -370,7 +383,7 @@ class HTMLEmailRenderer:
             parts.append(ai_intro)
             parts.append("")
 
-        parts.append("Hi team,")
+        parts.append("Greetings Everyone,")
         parts.append("")
         parts.append("Here's this week's progress across active projects:")
         parts.append("")
@@ -386,10 +399,14 @@ class HTMLEmailRenderer:
             parts.append("")
 
         # Bugs/tickets
-        if hasattr(report, 'bugs_fixed') or hasattr(report, 'tickets_resolved') or hasattr(report, 'features_shipped'):
-            bugs_fixed = getattr(report, 'bugs_fixed', 0)
-            tickets_resolved = getattr(report, 'tickets_resolved', 0)
-            features_shipped = getattr(report, 'features_shipped', 0)
+        if (
+            hasattr(report, "bugs_fixed")
+            or hasattr(report, "tickets_resolved")
+            or hasattr(report, "features_shipped")
+        ):
+            bugs_fixed = getattr(report, "bugs_fixed", 0)
+            tickets_resolved = getattr(report, "tickets_resolved", 0)
+            features_shipped = getattr(report, "features_shipped", 0)
 
             if bugs_fixed > 0 or tickets_resolved > 0 or features_shipped > 0:
                 parts.append("BUGS FIXED & ISSUES RESOLVED")
@@ -452,7 +469,7 @@ if __name__ == "__main__":
                 completed="Authentication refactor, rate limiter implementation",
                 in_progress="Endpoint pagination, caching optimization",
                 blockers="None",
-                next_week="Deploy v2.3 to staging, begin load testing"
+                next_week="Deploy v2.3 to staging, begin load testing",
             ),
             ProjectUpdate(
                 name="Web Application",
@@ -461,15 +478,15 @@ if __name__ == "__main__":
                 completed="Dashboard backend, notification system",
                 in_progress="Frontend integration",
                 blockers="Waiting on design assets",
-                next_week="Complete analytics integration"
-            )
+                next_week="Complete analytics integration",
+            ),
         ],
         summary_bullets=[
             "2/2 projects progressing well",
-            "Minor delay on Web App due to design dependency"
+            "Minor delay on Web App due to design dependency",
         ],
         next_milestone="Sprint 15 completion",
-        next_milestone_date=date(2025, 10, 18)
+        next_milestone_date=date(2025, 10, 18),
     )
 
     # Add bugs/tickets data dynamically
@@ -481,7 +498,9 @@ if __name__ == "__main__":
     ai_intro = "Hello! I'm Sebastian's AI assistant. This week showed solid progress—our API Platform is humming along nicely and the Web App just needs those design assets to wrap up."
     github_stats = "23 commits across 3 repos, 4 PRs merged"
 
-    subject, html, plain = renderer.render(report, ai_intro=ai_intro, github_stats=github_stats)
+    subject, html, plain = renderer.render(
+        report, ai_intro=ai_intro, github_stats=github_stats
+    )
 
     output = Path("test_email.html")
     output.write_text(html)
