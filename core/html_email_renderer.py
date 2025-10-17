@@ -276,7 +276,7 @@ class HTMLEmailRenderer:
                                   background-color: {self._get_status_bg(project.status)};
                                   border-radius: 12px;
                                   font-size: 13px;
-                                  font-weight: 700;
+                                  font-weight: 500;
                                   color: {status_color};">
                         {status_emoji} {status_display}
                     </span>
