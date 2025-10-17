@@ -169,7 +169,15 @@ def collect_projects() -> List[ProjectUpdate]:
         in_progress = Prompt.ask("What's in progress?", default="None")
         blockers = Prompt.ask("Any blockers?", default="None")
         next_week = Prompt.ask("Plans for next week?", default="TBD")
-        
+
+        # Optional: Progress and ETA
+        console.print("\n[dim]Optional: Progress tracking[/dim]")
+        progress_str = Prompt.ask("Progress % (0-100, or leave empty)", default="")
+        progress_percent = int(progress_str) if progress_str else None
+
+        eta_str = Prompt.ask("ETA date (YYYY-MM-DD, or leave empty)", default="")
+        eta = date.fromisoformat(eta_str) if eta_str else None
+
         projects.append(ProjectUpdate(
             name=name,
             status=status,
@@ -177,7 +185,9 @@ def collect_projects() -> List[ProjectUpdate]:
             completed=completed,
             in_progress=in_progress,
             blockers=blockers,
-            next_week=next_week
+            next_week=next_week,
+            progress_percent=progress_percent,
+            eta=eta
         ))
         
         if not Confirm.ask("\nAdd another project?", default=True):

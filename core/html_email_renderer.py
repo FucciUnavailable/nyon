@@ -272,14 +272,28 @@ class HTMLEmailRenderer:
         status_emoji = project.status.emoji()
         status_color = self._get_status_color(project.status)
 
+        # Build progress and ETA display
+        progress_eta_html = ""
+        if project.progress_percent is not None or project.eta is not None:
+            parts = []
+            if project.progress_percent is not None:
+                parts.append(f"{project.progress_percent}%")
+            if project.eta is not None:
+                eta_str = project.eta.strftime("%b %d")
+                parts.append(f"ETA: {eta_str}")
+            progress_eta_html = f"""
+                    <div style="font-size: 13px; color: #5f6368; margin: 4px 0 0 0;">
+                        {" • ".join(parts)}
+                    </div>"""
+
         return f"""
         <!-- Project {index} -->
         <div style="margin: 0 0 32px 0;">
             <div style="display: table; width: 100%; margin: 0 0 12px 0;">
                 <div style="display: table-cell; vertical-align: middle;">
                     <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #202124;">
-                        {index}. {project.name}    {status_emoji}
-                    </h2>
+                        {index}. {project.name}
+                    </h2>{progress_eta_html}
                 </div>
                 <div style="display: table-cell; vertical-align: middle; text-align: right; white-space: nowrap; padding-left: 16px;">
                     <span style="display: inline-block;
@@ -401,7 +415,18 @@ class HTMLEmailRenderer:
 
         for idx, project in enumerate(report.projects, start=1):
             status_display = project.status_text or project.status.display_name()
-            parts.append(f"{idx}. {project.name}")
+
+            # Build title with progress/ETA
+            title = f"{idx}. {project.name}"
+            if project.progress_percent is not None or project.eta is not None:
+                details = []
+                if project.progress_percent is not None:
+                    details.append(f"{project.progress_percent}%")
+                if project.eta is not None:
+                    details.append(f"ETA: {project.eta.strftime('%b %d')}")
+                title += f" ({' • '.join(details)})"
+
+            parts.append(title)
             parts.append(f"   Status: {status_display}")
             parts.append(f"   Completed: {project.completed}")
             parts.append(f"   In Progress: {project.in_progress}")

@@ -32,7 +32,7 @@ class ProjectStatus(str, Enum):
 
 class ProjectUpdate(BaseModel):
     """Weekly update for a single project."""
-    
+
     name: str = Field(..., min_length=1, description="Project name")
     status: ProjectStatus = Field(default=ProjectStatus.ON_TRACK)
     status_text: str = Field(default="", description="Custom status description")
@@ -40,6 +40,8 @@ class ProjectUpdate(BaseModel):
     in_progress: str = Field(default="None", description="What's currently in progress")
     blockers: str = Field(default="None", description="Current blockers")
     next_week: str = Field(default="None", description="Plans for next week")
+    progress_percent: Optional[int] = Field(default=None, ge=0, le=100, description="Project completion percentage (0-100)")
+    eta: Optional[date] = Field(default=None, description="Estimated completion date")
     
     @field_validator("name")
     @classmethod
