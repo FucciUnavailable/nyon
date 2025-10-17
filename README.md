@@ -1,765 +1,582 @@
-# 🚀 Engineering Intelligence System
+# Weekly Report System - Complete Guide
 
-An automated system for collecting GitHub activity, analyzing it with AI, and generating executive-ready reports.
+## Overview
 
-## 📦 Installation
-
-1. Clone the repository
-2. Create a virtual environment:
-```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-
-   ## 🎉 Final `README.md`
-
-```markdown
-# 🚀 Engineering Intelligence System
-
-An automated weekly reporting system that combines project updates, AI-powered summaries, and GitHub activity tracking to generate professional engineering reports sent via email.
+This system generates and sends weekly engineering progress reports via email. It combines project updates, AI-generated summaries, GitHub activity stats, and automated email delivery through SendGrid.
 
 ---
 
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Weekly Workflow](#weekly-workflow)
-- [CLI Reference](#cli-reference)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-
----
-
-## ✨ Features
-
-- 📊 **Project Tracking**: Track multiple projects with status indicators (🟢 On Track, 🟡 Delayed, 🔵 Ahead, 🔴 At Risk)
-- 🤖 **AI Summaries**: OpenAI-powered executive summaries introduce your reports in a friendly, professional tone
-- 💻 **GitHub Integration**: Automatically collect PR and commit stats to validate project progress
-- 📧 **Email Delivery**: Beautiful plain-text emails sent via SendGrid
-- 🎨 **Rich CLI**: Interactive wizards and beautiful console output with `typer` and `rich`
-- ⚙️ **Modular Design**: Clean architecture following best practices for maintainability
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                   Weekly Workflow                        │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-        ┌──────────────────────────────────┐
-        │   Create projects.json           │
-        │   (Manual or Interactive CLI)    │
-        └──────────────────────────────────┘
-                            │
-                            ▼
-        ┌──────────────────────────────────┐
-        │   AI Summarizer (OpenAI)         │
-        │   Generates 2-3 line intro       │
-        └──────────────────────────────────┘
-                            │
-                            ▼
-        ┌──────────────────────────────────┐
-        │   GitHub Collector (Optional)    │
-        │   Fetches PRs, commits, issues   │
-        └──────────────────────────────────┘
-                            │
-                            ▼
-        ┌──────────────────────────────────┐
-        │   Email Renderer                 │
-        │   Combines all sections          │
-        └──────────────────────────────────┘
-                            │
-                            ▼
-        ┌──────────────────────────────────┐
-        │   Email Sender (SendGrid)        │
-        │   Delivers to stakeholders       │
-        └──────────────────────────────────┘
-```
-
-### Module Structure
-
-```
-project/
-├── config/          # Environment configuration
-├── data/            # Data models (Pydantic)
-├── core/            # Business logic (email, GitHub)
-├── ai/              # AI summarization
-├── utils/           # Shared utilities
-└── scripts/         # CLI tools
-```
-
----
-
-## 📦 Installation
-
-### Prerequisites
-
-- Python 3.11+
-- GitHub Personal Access Token
-- SendGrid API Key
-- OpenAI API Key
-
-### Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd engineering-intelligence
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and fill in your credentials:
-   ```bash
-   # GitHub API
-   GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
-   GITHUB_REPOS=owner/repo1,owner/repo2
-   
-   # SendGrid Email
-   SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
-   SENDGRID_FROM_EMAIL=noreply@yourcompany.com
-   REPORT_RECIPIENT_EMAILS=manager@company.com,team@company.com
-   
-   # OpenAI API
-   OPENAI_API_KEY=sk-xxxxxxxxxxxxx
-   OPENAI_MODEL=gpt-4o-mini
-   
-   # Report Settings
-   REPORT_OUTPUT_DIR=./reports
-   LOG_LEVEL=INFO
-   ```
-
----
-
-## ⚙️ Configuration
-
-### GitHub Setup
-
-1. Go to https://github.com/settings/tokens
-2. Generate a new token with `repo` scope
-3. Add to `.env` as `GITHUB_TOKEN`
-
-### SendGrid Setup
-
-1. Create account at https://sendgrid.com
-2. Generate API key with "Mail Send" permissions
-3. Verify sender email address
-4. Add credentials to `.env`
-
-### OpenAI Setup
-
-1. Get API key from https://platform.openai.com/api-keys
-2. Add to `.env` as `OPENAI_API_KEY`
-3. Model `gpt-4o-mini` is the cheapest option (~$0.15 per 1M tokens)
-
-### Custom AI Prompts
-
-Edit `.env` to customize the AI assistant's personality:
+## Quick Start
 
 ```bash
-AI_SYSTEM_PROMPT="You are a helpful engineering assistant for your owner. Provide concise 2-3 line summaries of engineering activity. Be professional but friendly."
-AI_MAX_TOKENS=150
-AI_TEMPERATURE=0.7
+# 1. Activate virtual environment
+source venv/bin/activate
+
+# 2. Run the interactive workflow
+python weekly_report.py
 ```
+
+That's it! The interactive script handles everything.
 
 ---
 
-## 🚀 Usage
+## Complete Workflow
 
-### Quick Start (Complete Workflow)
+### Step-by-Step Process
 
-```bash
-# 1. Create your weekly report interactively
-python scripts/create_projects_json.py
+#### **Step 1: Create Project Data**
 
-# 2. Preview the email (with AI + GitHub stats)
-python scripts/generate_weekly_report.py --input projects.json --dry-run
+First, you need to create a `projects.json` file containing your weekly updates.
 
-# 3. Send it!
-python scripts/generate_weekly_report.py --input projects.json
-```
-
----
-
-## 📅 Weekly Workflow
-
-### Monday Morning (5 minutes)
-
-#### Option A: Interactive Wizard (Recommended)
 ```bash
 python scripts/create_projects_json.py
 ```
 
-The wizard will ask:
-- Week dates (auto-detected)
-- Your name and team
-- Each project's status, progress, and blockers
+**What it does:**
+- Interactive wizard walks you through questions
+- Auto-detects the current week (Monday-Friday)
+- Collects project updates (name, status, completed work, blockers, etc.)
+- Generates summary bullets automatically
+- Saves everything to `projects.json`
+
+**Output:** `projects.json` in the root directory
+
+---
+
+#### **Step 2: Generate & Send Report**
+
+Use the main interactive workflow:
+
+```bash
+python weekly_report.py
+```
+
+**What it does:**
+
+1. **Checks for `projects.json`**
+   - If exists: asks if you want to use it
+   - If missing: prompts you to create one first
+
+2. **Choose mode**
+   - **Preview**: Shows what the email will look like (dry-run, doesn't send)
+   - **Send**: Actually sends the email to recipients
+
+3. **Configure options**
+   - **Include AI summary?** (Yes/No) - Adds 2-3 line AI-written intro
+   - **Include GitHub stats?** (Yes/No) - Adds last 7 days of GitHub activity
+   - **AI style**: executive / casual / detailed
+
+4. **Archive (only when sending)**
+   - Offers to save the report to `weekly_logs/`
+   - Saves as `report_YYYY-MM-DD.json`
+   - This creates a historical log of all sent reports
+
+5. **Generate email**
+   - Loads project data from `projects.json`
+   - Generates AI summary (if enabled)
+   - Collects GitHub stats (if enabled)
+   - Renders complete email
+   - Shows preview
+
+6. **Send email (if not dry-run)**
+   - Sends via SendGrid to configured recipients
+   - Displays success confirmation
+
+---
+
+## What Each Component Does
+
+### 1. **`weekly_report.py`** (Main Entry Point)
+
+**Location:** Root directory
+**Purpose:** Simple interactive wrapper that guides you through the entire process
+**Why it exists:** Bypasses complex CLI flags and provides an intuitive interface
+
+**Flow:**
+```
+Check projects.json exists
+  ↓
+Ask: Preview or Send?
+  ↓
+Ask: Include AI? Include GitHub?
+  ↓
+(If sending) Offer to archive to weekly_logs/
+  ↓
+Call generate_weekly_report.generate()
+  ↓
+Show success message
+```
+
+---
+
+### 2. **`scripts/create_projects_json.py`** (Data Collection)
+
+**Purpose:** Interactive wizard to build your `projects.json` file
+
+**Collects:**
+- Week start/end dates (auto-detected or manual)
+- Your name and team name
+- For each project:
+  - Project name
+  - Status (🟢 On Track, 🟡 Slight Delay, 🔵 Ahead, 🔴 At Risk)
+  - What was completed this week
+  - What's in progress
+  - Any blockers
+  - Plans for next week
 - Overall summary bullets
-- Next milestone
+- Next milestone name and date
 
-#### Option B: Manual Template
+**Output:** Valid JSON file that passes all Pydantic validations
 
-Copy `projects_template.json` and fill it out:
+---
 
-```json
-{
-  "week_start": "2025-10-06",
-  "week_end": "2025-10-11",
-  "lead_name": "Your Name",
-  "team_name": "Product Engineering",
-  "projects": [
-    {
-      "name": "API Platform",
-      "status": "on_track",
-      "status_text": "On Track",
-      "completed": "Auth refactor, rate limiter",
-      "in_progress": "Endpoint pagination",
-      "blockers": "None",
-      "next_week": "Deploy v2.3 to staging"
-    }
-  ],
-  "summary_bullets": [
-    "3/4 projects on schedule",
-    "Minor delay on frontend"
-  ],
-  "next_milestone": "Sprint 15 completion",
-  "next_milestone_date": "2025-10-18"
-}
-```
+### 3. **`scripts/generate_weekly_report.py`** (Core Generator)
 
-**Status Options:**
-- `on_track` → 🟢 Green
-- `slight_delay` → 🟡 Yellow
-- `ahead` → 🔵 Blue
-- `at_risk` → 🔴 Red
+**Purpose:** Master orchestrator that combines everything
 
-### Review and Send
+**Steps:**
 
+1. **Load project data** (`load_report()`)
+   - Reads `projects.json`
+   - Validates with Pydantic models
+   - Raises errors if invalid
+
+2. **Generate AI summary** (optional)
+   - Uses OpenAI GPT-4o-mini
+   - Reads project data and creates 2-3 line friendly intro
+   - Styles: executive / casual / detailed
+   - Falls back gracefully if API fails
+
+3. **Collect GitHub stats** (optional)
+   - Queries GitHub API for last 7 days
+   - Counts commits, PRs opened/merged, issues closed
+   - Formats as one-line summary
+   - Falls back gracefully if API fails
+
+4. **Render email**
+   - Uses `PlainTextEmailRenderer`
+   - Combines all sections into plain text email
+   - Generates subject line with dates and project names
+
+5. **Preview**
+   - Shows rich console preview of final email
+
+6. **Send** (if not dry-run)
+   - Gets recipients from `.env` config
+   - Sends via SendGrid API
+   - Confirms delivery
+
+**CLI Flags (if calling directly):**
 ```bash
-# Preview first
-python scripts/generate_weekly_report.py --input projects.json --dry-run
-
-# Looks good? Send it!
-python scripts/generate_weekly_report.py --input projects.json
+python -m scripts.generate_weekly_report \
+  --input projects.json \
+  --dry-run \
+  --skip-ai \
+  --skip-github \
+  --style executive \
+  --github-days 7 \
+  --to "email1@example.com,email2@example.com"
 ```
 
 ---
 
-## 📖 CLI Reference
+### 4. **`core/email_renderer.py`** (Email Formatting)
 
-### `create_projects_json.py`
+**Purpose:** Converts structured report data into formatted email text
 
-Interactive wizard for creating project reports.
+**Class:** `PlainTextEmailRenderer`
 
-```bash
-python scripts/create_projects_json.py [OPTIONS]
-
-Options:
-  -o, --output PATH       Output file path [default: projects.json]
-  --auto-dates           Auto-fill this week's dates [default: True]
-  --help                 Show help message
-```
-
-**Examples:**
-```bash
-# Standard usage
-python scripts/create_projects_json.py
-
-# Custom output path
-python scripts/create_projects_json.py --output reports/week-oct-06.json
-
-# Manually enter dates
-python scripts/create_projects_json.py --no-auto-dates
-```
-
----
-
-### `generate_weekly_report.py`
-
-Master script for generating complete reports with AI + GitHub stats.
-
-```bash
-python scripts/generate_weekly_report.py [OPTIONS]
-
-Options:
-  -i, --input PATH       Path to projects.json file [required]
-  --dry-run             Preview email without sending
-  --skip-ai             Skip AI summary generation
-  --skip-github         Skip GitHub stats collection
-  --github-days INT     Days of GitHub history [default: 7]
-  --style TEXT          AI style: executive, casual, detailed [default: executive]
-  --to TEXT             Override recipients (comma-separated)
-  --help                Show help message
-```
-
-**Examples:**
-
-```bash
-# Full report (AI + GitHub + send)
-python scripts/generate_weekly_report.py --input projects.json
-
-# Preview only
-python scripts/generate_weekly_report.py --input projects.json --dry-run
-
-# Skip AI intro
-python scripts/generate_weekly_report.py --input projects.json --skip-ai
-
-# Skip GitHub stats
-python scripts/generate_weekly_report.py --input projects.json --skip-github
-
-# Casual AI tone
-python scripts/generate_weekly_report.py --input projects.json --style casual
-
-# Send to different recipients
-python scripts/generate_weekly_report.py --input projects.json --to "ceo@company.com,vp@company.com"
-
-# Just projects (no AI, no GitHub)
-python scripts/generate_weekly_report.py --input projects.json --skip-ai --skip-github
-```
-
----
-
-### `collect_github_data.py`
-
-Standalone GitHub data collection (for testing or standalone exports).
-
-```bash
-python scripts/collect_github_data.py [OPTIONS]
-
-Options:
-  -d, --days INT        Number of days of history [default: 7]
-  -o, --output PATH     Output JSON file path
-  --repos TEXT          Override repos (comma-separated)
-  --help                Show help message
-```
-
-**Examples:**
-
-```bash
-# Collect last 7 days
-python scripts/collect_github_data.py --days 7
-
-# Custom output path
-python scripts/collect_github_data.py --output reports/github-oct-06.json
-
-# Override repos
-python scripts/collect_github_data.py --repos "myorg/repo1,myorg/repo2"
-
-# Collect last 30 days
-python scripts/collect_github_data.py --days 30
-```
-
----
-
-### `send_weekly_report.py`
-
-Standalone email sender (for pre-generated reports).
-
-```bash
-python scripts/send_weekly_report.py [OPTIONS]
-
-Options:
-  -i, --input PATH      Path to projects.json file [required]
-  --dry-run            Print email without sending
-  --to TEXT            Override recipients
-  --help               Show help message
-```
-
----
-
-## 📧 Example Output
-
-### Email Preview
+**Template Structure:**
 
 ```
-Subject: Weekly Engineering Progress – 2025-10-06–2025-10-11 (API Platform, Web Application, Mobile App)
-
-🤖 Hi there! This is Claude, Sebastian's AI assistant. This week showed strong 
-momentum with 3/4 projects on track. The API Platform and Mobile App are hitting 
-milestones, while the Web Application has a minor delay due to design dependencies.
-
+[🤖 AI Intro if enabled]
 ---
 
 Hi team,
 
 Here's a summary of this week's progress across active projects:
 
-### 1. API Platform
+### 1. Project Name
 Status: 🟢 On Track
 Progress:
-- Completed: Authentication refactor, rate limiter, staging fixes
-- In Progress: Endpoint pagination, caching optimization
-- Blockers: Waiting DB migration window from DevOps
+- Completed: [what was done]
+- In Progress: [what's being worked on]
+- Blockers: [any issues]
 Next Week:
-- Deploy v2.3 to staging and start load testing
+- [plans]
 
-### 2. Web Application
-Status: 🟡 Slight Delay (UI dependency)
-Progress:
-- Completed: Dashboard backend, notification center
-- In Progress: Frontend integration of chart components
-- Blockers: Waiting on UI assets from design
-Next Week:
-- Integrate analytics SDK and finalize responsiveness
-
-### 3. Mobile App
-Status: 🟢 On Track
-Progress:
-- Completed: Login flow, crash reporting, push logic
-- In Progress: Offline mode prototype (70%)
-- Blockers: None
-Next Week:
-- Beta testing with internal users
+### 2. [More projects...]
 
 Overall Summary:
-- 3/4 projects on or ahead of schedule
-- Minor delay on WebApp frontend integration, expected to recover by next sprint
-- 💻 Week's Coding: 15 PRs merged, 47 commits across 3 repos
+- [auto-generated bullet: X/Y projects on track]
+- [custom bullets]
+- 💻 [GitHub stats if enabled]
 
 Next Milestone:
-- Sprint 15 completion — 2025-10-18
+- [milestone name] — [date]
 
 Best,
-Sebastian Lee
-Lead Software Engineer
-(Product Engineering)
+[Your Name]
+Software Engineer
+([Team Name])
+```
+
+**Note:** Currently generates plain text with markdown-style formatting (`###`, `-`, etc.). This doesn't render well in most email clients.
+
+---
+
+### 5. **`ai/summarizer.py`** (AI Summary Generation)
+
+**Purpose:** Generates friendly 2-3 line AI intros using OpenAI
+
+**How it works:**
+1. Builds context from project data (status, completed work, blockers)
+2. Sends to OpenAI with style-specific instructions
+3. Returns summary like:
+   - *"Hi there! This is Claude, Sebastian's AI assistant. This week showed solid progress with 3/4 projects on track. The API Platform hit all milestones while the Web App has a minor delay waiting on design assets."*
+
+**API:** Uses OpenAI GPT-4o-mini (cheapest model)
+**Token limit:** 150 tokens max
+**Temperature:** 0.7 (balanced creativity)
+
+**Configured in `.env`:**
+- `OPENAI_API_KEY`
+- `AI_SYSTEM_PROMPT` (optional override)
+- `AI_MAX_TOKENS` (optional)
+- `AI_TEMPERATURE` (optional)
+
+---
+
+### 6. **`core/github_collector.py`** (GitHub Stats)
+
+**Purpose:** Collects GitHub activity stats for the past 7 days
+
+**What it tracks:**
+- Commits pushed
+- Pull requests opened
+- Pull requests merged
+- Issues closed
+- Across all configured repositories
+
+**Output:** One-line summary like:
+```
+"This week: 23 commits, 5 PRs opened (4 merged), 3 issues closed"
+```
+
+**Configured in `.env`:**
+```env
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
+GITHUB_REPOS=owner/repo1,owner/repo2,owner/repo3
 ```
 
 ---
 
-## 🐛 Troubleshooting
+### 7. **`core/email_sender.py`** (SendGrid Integration)
 
-### GitHub API Rate Limiting
+**Purpose:** Sends emails via SendGrid API
 
-**Error:** `GitHub API rate limit exceeded`
+**Flow:**
+1. Formats plain text email
+2. Calls SendGrid API with:
+   - From address (configured in `.env`)
+   - To addresses (from config or CLI override)
+   - Subject line
+   - Body text
+3. Handles errors and retries
 
-**Solution:**
-- Authenticated requests get 5,000/hour (vs 60/hour unauthenticated)
-- Verify your `GITHUB_TOKEN` is set correctly
-- Check rate limit: `curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/rate_limit`
+**Configured in `.env`:**
+```env
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
+SENDGRID_FROM_EMAIL=reports@yourcompany.com
+REPORT_RECIPIENT_EMAILS=manager@company.com,team@company.com
+```
 
-### SendGrid Authentication Failed
+---
 
-**Error:** `401 Unauthorized` or `403 Forbidden`
+### 8. **`data/models.py`** (Data Validation)
 
-**Solutions:**
-- Verify API key has "Mail Send" permission
-- Check sender email is verified in SendGrid dashboard
-- Ensure `SENDGRID_FROM_EMAIL` matches verified sender
+**Purpose:** Pydantic models for type safety and validation
 
-### OpenAI API Errors
+**Models:**
 
-**Error:** `openai.error.RateLimitError`
+#### `ProjectStatus` (Enum)
+- `ON_TRACK` → 🟢 On Track
+- `SLIGHT_DELAY` → 🟡 Slight Delay
+- `AHEAD` → 🔵 Ahead of Schedule
+- `AT_RISK` → 🔴 At Risk
 
-**Solutions:**
-- Check your OpenAI account has available credits
-- Reduce `AI_MAX_TOKENS` in `.env`
-- Use `--skip-ai` flag to bypass AI generation
+#### `ProjectUpdate`
+- `name`: Project name (required)
+- `status`: ProjectStatus (default: ON_TRACK)
+- `status_text`: Custom status description
+- `completed`: What was done this week
+- `in_progress`: Current work
+- `blockers`: Issues blocking progress
+- `next_week`: Plans for next week
 
-### Module Import Errors
+#### `WeeklyReport`
+- `week_start`: Start date
+- `week_end`: End date (validated to be after start)
+- `lead_name`: Your name (required)
+- `team_name`: Team name (default: "Product Engineering")
+- `projects`: List of ProjectUpdate (min 1 required)
+- `summary_bullets`: Overall summary points
+- `next_milestone`: Next major milestone
+- `next_milestone_date`: Target date (optional)
 
-**Error:** `ModuleNotFoundError: No module named 'X'`
+**Validation:**
+- Ensures dates are valid
+- Ensures at least one project exists
+- Trims whitespace from names
+- Validates project names aren't empty
 
-**Solutions:**
+---
+
+## Configuration (`.env` File)
+
+Create a `.env` file in the root directory with:
+
+```env
+# GitHub Integration
+GITHUB_TOKEN=ghp_your_github_token_here
+GITHUB_REPOS=username/repo1,username/repo2
+
+# SendGrid Email
+SENDGRID_API_KEY=SG.your_sendgrid_api_key
+SENDGRID_FROM_EMAIL=your-email@company.com
+REPORT_RECIPIENT_EMAILS=recipient1@company.com,recipient2@company.com
+
+# OpenAI for AI Summaries
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini
+
+# Optional AI Settings
+AI_SYSTEM_PROMPT="You are a helpful engineering assistant..."
+AI_MAX_TOKENS=150
+AI_TEMPERATURE=0.7
+
+# Report Settings
+REPORT_OUTPUT_DIR=./reports
+LOG_LEVEL=INFO
+```
+
+---
+
+## Directory Structure
+
+```
+nyon/
+├── weekly_report.py              # Main interactive entry point
+├── projects.json                 # Current week's report data (generated)
+├── weekly_logs/                  # Archived reports (auto-created)
+│   ├── report_2025-10-07.json
+│   └── report_2025-10-14.json
+├── scripts/
+│   ├── create_projects_json.py   # Interactive data collection
+│   └── generate_weekly_report.py # Core report generator
+├── core/
+│   ├── email_renderer.py         # Email template rendering
+│   ├── email_sender.py           # SendGrid integration
+│   └── github_collector.py       # GitHub API client
+├── ai/
+│   └── summarizer.py             # OpenAI integration
+├── data/
+│   ├── models.py                 # Pydantic data models
+│   └── github_models.py          # GitHub-specific models
+├── config/
+│   └── settings.py               # Configuration management
+├── utils/
+│   ├── json_exporter.py          # JSON file writer
+│   ├── github_stats_formatter.py # Format GitHub stats
+│   └── logger.py                 # Logging setup
+└── .env                          # Configuration (not in git)
+```
+
+---
+
+## Logging and History
+
+### Where Reports Are Saved
+
+1. **Current report:** `projects.json` (root directory)
+   - Overwrites each time you create a new one
+
+2. **Archived reports:** `weekly_logs/report_YYYY-MM-DD.json`
+   - Only saved when you choose "send" mode
+   - Only saved if you confirm the archive prompt
+   - Named by week start date
+   - Permanent historical record
+
+### Why This Matters
+
+- If you only use "preview" mode, **nothing gets archived**
+- The `weekly_logs/` directory will remain empty
+- Only reports that are actually sent get logged
+- This is intentional to avoid cluttering logs with drafts
+
+---
+
+## Common Use Cases
+
+### 1. First Time Setup
 ```bash
-# Ensure virtual environment is activated
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-
-# Reinstall dependencies
+# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
 
-# Verify Python version
-python --version  # Should be 3.11+
+# Configure .env file
+nano .env  # Add your API keys
+
+# Test configuration
+python config/settings.py
+
+# Create first report
+python scripts/create_projects_json.py
+python weekly_report.py
+# Choose "preview" to test
 ```
 
-### JSON Validation Errors
-
-**Error:** `Failed to parse report: validation error`
-
-**Solutions:**
-- Ensure dates are in `YYYY-MM-DD` format
-- Check `status` field uses valid values: `on_track`, `slight_delay`, `ahead`, `at_risk`
-- Validate JSON syntax: `python -m json.tool projects.json`
-
----
-
-## 🧪 Testing
-
-### Test Configuration
+### 2. Weekly Report Routine
 ```bash
-# Verify environment setup
-python -c "from config.settings import settings; print('✓ Config loaded')"
+# Create this week's data
+python scripts/create_projects_json.py
+
+# Preview before sending
+python weekly_report.py
+# Choose "preview"
+
+# If happy, send it
+python weekly_report.py
+# Choose "send"
+# Confirm archiving
 ```
 
-### Test GitHub Collection
+### 3. Send Without AI/GitHub
 ```bash
-python scripts/collect_github_data.py --days 1 --output test.json
+python weekly_report.py
+# Choose "send"
+# Choose "No" for AI summary
+# Choose "No" for GitHub stats
 ```
 
-### Test AI Summary
+### 4. Manual CLI (Advanced)
 ```bash
-python -c "
-import asyncio
-from ai.summarizer import AISummarizer
-from data.models import WeeklyReport
-from datetime import date
-
-report = WeeklyReport(
-    week_start=date(2025,10,6),
-    week_end=date(2025,10,11),
-    lead_name='Test',
-    projects=[]
-)
-
-async def test():
-    s = AISummarizer()
-    result = await s.summarize_weekly_report(report)
-    print(result)
-
-asyncio.run(test())
-"
-```
-
-### Test Email Rendering (Dry Run)
-```bash
-python scripts/generate_weekly_report.py --input projects.json --dry-run
+# Full control over all options
+python -m scripts.generate_weekly_report \
+  --input projects.json \
+  --style casual \
+  --github-days 14 \
+  --to "override@example.com"
 ```
 
 ---
 
-## 🔒 Security Best Practices
+## Troubleshooting
 
-1. **Never commit `.env`** - It's in `.gitignore` for a reason
-2. **Rotate API keys regularly** - Especially if shared with team
-3. **Use environment-specific configs** - Different keys for dev/staging/prod
-4. **Limit token scopes** - GitHub token only needs `repo` access
-5. **Monitor API usage** - Check SendGrid and OpenAI dashboards for anomalies
+### Error: `'NoneType' object has no attribute 'read_text'`
+**Cause:** No `--input` flag provided when calling `generate_weekly_report.py` directly
+**Fix:** Use `python weekly_report.py` instead, or add `--input projects.json`
 
----
+### Error: `No module named 'typer'`
+**Cause:** Dependencies not installed
+**Fix:** `source venv/bin/activate && pip install -r requirements.txt`
 
-## 🚀 Advanced Usage
+### Error: `Failed to load report: validation error`
+**Cause:** Invalid data in `projects.json`
+**Fix:** Delete `projects.json` and recreate with `python scripts/create_projects_json.py`
 
-### Automation with Cron
+### Error: `SendGrid API error`
+**Cause:** Invalid SendGrid API key or rate limit
+**Fix:** Check `.env` file, verify key is valid in SendGrid dashboard
 
-Run reports automatically every Friday at 4 PM:
+### Error: `OpenAI API error`
+**Cause:** Invalid OpenAI key or quota exceeded
+**Fix:** Use `--skip-ai` flag or check OpenAI account
 
-```bash
-# Edit crontab
-crontab -e
-
-# Add this line (adjust paths)
-0 16 * * 5 cd /path/to/project && /path/to/venv/bin/python scripts/generate_weekly_report.py --input projects.json
-```
-
-### GitHub Actions Automation
-
-Create `.github/workflows/weekly-report.yml`:
-
-```yaml
-name: Weekly Engineering Report
-
-on:
-  schedule:
-    - cron: '0 16 * * 5'  # Every Friday at 4 PM UTC
-  workflow_dispatch: {}
-
-jobs:
-  send-report:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
-      - name: Generate and send report
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          SENDGRID_FROM_EMAIL: ${{ secrets.SENDGRID_FROM_EMAIL }}
-          REPORT_RECIPIENT_EMAILS: ${{ secrets.REPORT_RECIPIENT_EMAILS }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          python scripts/generate_weekly_report.py --input projects.json
-```
-
-### Custom Email Templates
-
-Create HTML email renderer in `core/email_renderer.py`:
-
-```python
-class HTMLEmailRenderer:
-    """Renders reports as HTML emails with custom styling."""
-    
-    def render(self, report: WeeklyReport) -> tuple[str, str]:
-        # Your HTML template logic here
-        pass
-```
+### Empty `weekly_logs/` directory
+**Cause:** Only previewing reports, never sending them
+**Fix:** Choose "send" mode and confirm archiving to save logs
 
 ---
 
-## 📚 API Reference
+## Email Output Format (Current)
 
-### Core Classes
-
-#### `WeeklyReport` (data/models.py)
-Main data model for project reports.
-
-```python
-from data.models import WeeklyReport, ProjectUpdate, ProjectStatus
-
-report = WeeklyReport(
-    week_start=date(2025, 10, 6),
-    week_end=date(2025, 10, 11),
-    lead_name="Your Name",
-    team_name="Engineering",
-    projects=[...],
-    summary_bullets=[...],
-    next_milestone="Sprint 15",
-    next_milestone_date=date(2025, 10, 18)
-)
+**Subject:**
+```
+Weekly Engineering Progress – 2025-10-07–2025-10-11 (API Platform, Web App)
 ```
 
-#### `AISummarizer` (ai/summarizer.py)
-Generates AI-powered summaries.
+**Body:** Plain text with markdown-style formatting
+- Uses `###` for headers
+- Uses `-` for bullets
+- Uses emojis (🟢, 🟡, 🔴, 🔵, 🤖, 💻)
+- No HTML styling
 
-```python
-from ai.summarizer import AISummarizer
-
-summarizer = AISummarizer(
-    model="gpt-4o-mini",
-    system_prompt="Custom prompt...",
-    max_tokens=150,
-    temperature=0.7
-)
-
-summary = await summarizer.summarize_weekly_report(report, style="executive")
-```
-
-#### `GitHubCollector` (core/github_collector.py)
-Collects GitHub activity data.
-
-```python
-from core.github_collector import GitHubCollector
-from datetime import datetime, timedelta
-
-collector = GitHubCollector(
-    access_token="ghp_xxx",
-    repos=["owner/repo1", "owner/repo2"]
-)
-
-report = collector.collect_activity(
-    since=datetime.utcnow() - timedelta(days=7),
-    until=datetime.utcnow()
-)
-```
-
-#### `EmailSender` (core/email_sender.py)
-Sends emails via SendGrid.
-
-```python
-from core.email_sender import EmailSender
-
-sender = EmailSender(
-    api_key="SG.xxx",
-    from_email="noreply@company.com"
-)
-
-await sender.send_email(
-    to_emails=["recipient@company.com"],
-    subject="Weekly Report",
-    body="Report content..."
-)
-```
+**Issue:** Markdown doesn't render in most email clients (Gmail, Outlook, etc.)
+**Result:** Recipients see raw markdown syntax like `###` and `-`
+**Needed:** HTML email renderer with proper styling
 
 ---
 
-## 🤝 Contributing
+## Next Improvements Needed
 
-### Development Setup
+1. **HTML Email Renderer**
+   - Replace plain text with HTML email template
+   - Add proper styling (headers, colors, spacing)
+   - Make it look professional in Gmail/Outlook
+   - Keep plain text as fallback
 
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-pip install black ruff mypy pytest pytest-asyncio
+2. **Automatic Archiving**
+   - Save to `weekly_logs/` even in preview mode
+   - Add timestamped backups before overwriting `projects.json`
 
-# Run code formatting
-black .
-
-# Run linting
-ruff check .
-
-# Run type checking
-mypy .
-
-# Run tests
-pytest
-```
-
-### Code Style
-
-- Follow PEP 8
-- Use type hints everywhere
-- Document all public APIs
-- Write descriptive commit messages
+3. **Email Template Improvements**
+   - Better visual hierarchy
+   - Status badges with colors
+   - Responsive design for mobile
+   - Company branding
 
 ---
 
-## 📄 License
+## API Costs
 
-Proprietary - Internal Use Only
+**OpenAI (AI Summaries):**
+- Model: GPT-4o-mini
+- Cost: ~$0.0001 per report
+- Max tokens: 150
 
----
+**GitHub API:**
+- Free (5,000 requests/hour with token)
 
-## 💬 Support
+**SendGrid:**
+- Free tier: 100 emails/day
+- Each report = 1 email per recipient
 
-For questions or issues:
-1. Check [Troubleshooting](#troubleshooting) section
-2. Review logs in console output
-3. Open an issue in the repository
-
----
-
-## 🎉 Acknowledgments
-
-Built with:
-- [PyGithub](https://github.com/PyGithub/PyGithub) - GitHub API wrapper
-- [OpenAI](https://openai.com) - AI summarization
-- [SendGrid](https://sendgrid.com) - Email delivery
-- [Pydantic](https://pydantic.dev) - Data validation
-- [Typer](https://typer.tiangolo.com) - CLI framework
-- [Rich](https://rich.readthedocs.io) - Terminal formatting
+**Estimated cost for weekly reports:** < $0.01/week
 
 ---
 
-**Happy Reporting! 🚀**
-```
+## Security Notes
 
+- **Never commit `.env` file** - Contains API keys
+- `.gitignore` includes `.env`, `projects.json`, `weekly_logs/`
+- GitHub token needs: `repo` scope (read access)
+- SendGrid key needs: `Mail Send` permission only
+- OpenAI key: Standard API access
+
+---
+
+## Summary
+
+The system provides a **complete end-to-end workflow** for weekly engineering reports:
+
+1. **Data Collection** → Interactive wizard (`create_projects_json.py`)
+2. **AI Enhancement** → OpenAI summary (`ai/summarizer.py`)
+3. **GitHub Stats** → Activity tracking (`core/github_collector.py`)
+4. **Email Rendering** → Text formatting (`core/email_renderer.py`)
+5. **Delivery** → SendGrid sending (`core/email_sender.py`)
+6. **Archiving** → Historical logs (`weekly_logs/`)
+
+**Main Entry Point:** `python weekly_report.py`
+
+**Just run it and follow the prompts!**
