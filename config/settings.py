@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     sendgrid_api_key: str = Field(..., description="SendGrid API key")
     sendgrid_from_email: str = Field(..., description="Sender email address")
     report_recipient_emails: str = Field(..., description="Comma-separated recipient emails")
+    dev_recipient_emails: str = Field(default="", description="Comma-separated dev/test emails (overrides prod if set)")
     
     # OpenAI settings
     openai_api_key: str = Field(..., description="OpenAI API key")
@@ -70,7 +71,9 @@ class Settings(BaseSettings):
     
     def get_recipients_list(self) -> List[str]:
         """Get list of email recipients from comma-separated string."""
-        return [e.strip() for e in self.report_recipient_emails.split(",")]
+        # Use dev emails if set, otherwise use prod
+        emails = self.dev_recipient_emails if self.dev_recipient_emails else self.report_recipient_emails
+        return [e.strip() for e in emails.split(",") if e.strip()]
 
 
 # Singleton instance
