@@ -52,7 +52,7 @@ class ProjectUpdate(BaseModel):
 
 class WeeklyReport(BaseModel):
     """Complete weekly engineering report."""
-    
+
     week_start: date = Field(..., description="Start date of reporting week")
     week_end: date = Field(..., description="End date of reporting week")
     lead_name: str = Field(..., min_length=1, description="Name of engineering lead")
@@ -64,6 +64,11 @@ class WeeklyReport(BaseModel):
     )
     next_milestone: str = Field(default="TBD", description="Next major milestone")
     next_milestone_date: Optional[date] = Field(default=None, description="Milestone target date")
+
+    # Optional: bugs/tickets resolved this week
+    bugs_fixed: int = Field(default=0, ge=0, description="Number of bugs fixed this week")
+    tickets_resolved: int = Field(default=0, ge=0, description="Number of tickets resolved this week")
+    features_shipped: int = Field(default=0, ge=0, description="Number of features shipped this week")
     
     @field_validator("week_end")
     @classmethod

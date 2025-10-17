@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # AI Summarizer settings
     ai_system_prompt: str = Field(
         default=(
-            "You are a helpful engineering assistant. "
+            "You are a helpful AI assistant for a software engineer. "
             "Provide concise 2-3 line summaries of engineering activity. "
             "Be professional but friendly."
         ),

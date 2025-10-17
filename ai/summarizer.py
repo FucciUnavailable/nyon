@@ -124,7 +124,7 @@ class AISummarizer:
         project_lines = [
             f"Week: {report.week_start.isoformat()} to {report.week_end.isoformat()}",
             f"Team: {report.team_name}",
-            f"Lead: {report.lead_name}",
+            f"Engineer: {report.lead_name}",
             "",
             "Projects this week:"
         ]
@@ -147,21 +147,27 @@ class AISummarizer:
         # Add style-specific instructions
         if style == "executive":
             instruction = (
-                "\n\nWrite a friendly, professional 2-3 line summary of this week's progress. "
-                "Introduce yourself as the engineering lead's assistant. "
-                "Highlight the most important accomplishments and any concerns. "
-                "Keep it concise and suitable for executives."
+                f"\n\nWrite a friendly, professional 2-3 line summary of this week's progress. "
+                f"Start with: 'Hello! I'm {report.lead_name}'s AI assistant.' "
+                f"Then talk about what THE TEAM accomplished (not just {report.lead_name}). "
+                f"Use phrases like 'the team made progress', 'we completed', 'the team is working on', etc. "
+                f"Highlight the most important accomplishments and any concerns. "
+                f"Keep it concise and suitable for executives."
             )
         elif style == "casual":
             instruction = (
-                "\n\nWrite a casual, upbeat 2-3 line summary of this week. "
-                "Introduce yourself as the lead's AI assistant. "
-                "Make it feel human and positive."
+                f"\n\nWrite a casual, upbeat 2-3 line summary of this week. "
+                f"Start with: 'Hello! I'm {report.lead_name}'s AI assistant.' "
+                f"Then talk about what THE TEAM did this week (not just {report.lead_name}). "
+                f"Use 'we' and 'the team' to describe accomplishments. "
+                f"Make it feel human and positive."
             )
         else:  # detailed
             instruction = (
-                "\n\nWrite a detailed 3-4 line summary covering key progress, "
-                "blockers, and next steps. Introduce yourself as the assistant."
+                f"\n\nWrite a detailed 3-4 line summary covering key progress, blockers, and next steps. "
+                f"Start with: 'Hello! I'm {report.lead_name}'s AI assistant.' "
+                f"Focus on THE TEAM's work (not just {report.lead_name}). "
+                f"Use 'we' and 'the team' throughout."
             )
         
         return prompt + instruction

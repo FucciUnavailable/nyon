@@ -178,7 +178,7 @@ class PlainTextEmailRenderer:
         return (
             f"Best,\n"
             f"{report.lead_name}\n"
-            f"Lead Software Engineer\n"
+            f"Software Engineer\n"
             f"({report.team_name})"
         )
 

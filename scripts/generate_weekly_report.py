@@ -17,6 +17,7 @@ from config.settings import settings
 from data.models import WeeklyReport
 from ai.summarizer import AISummarizer, AISummarizerError
 from core.email_renderer import PlainTextEmailRenderer
+from core.html_email_renderer import HTMLEmailRenderer
 from core.email_sender import EmailSender, EmailSendError
 from core.github_collector import GitHubCollector, GitHubCollectorError
 from utils.github_stats_formatter import GitHubStatsFormatter
@@ -101,19 +102,19 @@ def generate(
             if github_stats:
                 console.print(f"[dim]  {github_stats}[/dim]")
         
-        # Render email
+        # Render email (both HTML and plain text)
         console.print("[blue]✍️  Rendering email...[/blue]")
-        renderer = PlainTextEmailRenderer()
-        subject, body = renderer.render(
+        html_renderer = HTMLEmailRenderer()
+        subject, html_body, plain_text_body = html_renderer.render(
             report,
             ai_intro=ai_intro,
             github_stats=github_stats
         )
-        
-        # Preview
+
+        # Preview (show plain text for console)
         console.print("\n")
         console.print(Panel(
-            f"[bold]{subject}[/bold]\n\n{body}",
+            f"[bold]{subject}[/bold]\n\n{plain_text_body}",
             title="📧 Email Preview",
             border_style="green"
         ))
@@ -130,7 +131,7 @@ def generate(
         )
         
         console.print(f"\n[blue]📤 Sending to {len(to_emails)} recipients...[/blue]")
-        asyncio.run(send_email_async(to_emails, subject, body))
+        asyncio.run(send_email_async(to_emails, subject, html_body, plain_text_body))
         
         console.print("[bold green]✓ Report sent successfully![/bold green]")
     
@@ -182,10 +183,10 @@ def collect_github_stats(days: int) -> Optional[str]:
         return None
 
 
-async def send_email_async(to_emails: list[str], subject: str, body: str):
-    """Send email via SendGrid."""
+async def send_email_async(to_emails: list[str], subject: str, html_body: str, plain_text_body: str):
+    """Send email via SendGrid with HTML and plain text fallback."""
     sender = EmailSender()
-    await sender.send_email(to_emails, subject, body)
+    await sender.send_email(to_emails, subject, plain_text_body, html_body)
 
 
 if __name__ == "__main__":

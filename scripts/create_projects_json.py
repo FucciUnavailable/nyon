@@ -75,7 +75,13 @@ def create(
         # Overall summary
         console.print("\n[bold]📊 Overall Summary[/bold]")
         summary_bullets = collect_summary_bullets(projects)
-        
+
+        # Bugs/Tickets resolved
+        console.print("\n[bold]🐛 Bugs & Tickets (Optional)[/bold]")
+        bugs_fixed = int(Prompt.ask("Bugs fixed this week", default="0"))
+        tickets_resolved = int(Prompt.ask("Tickets resolved", default="0"))
+        features_shipped = int(Prompt.ask("Features shipped", default="0"))
+
         # Next milestone
         console.print("\n[bold]🎯 Next Milestone[/bold]")
         next_milestone = Prompt.ask("Milestone name", default="Sprint completion")
@@ -98,7 +104,10 @@ def create(
             projects=projects,
             summary_bullets=summary_bullets,
             next_milestone=next_milestone,
-            next_milestone_date=next_milestone_date
+            next_milestone_date=next_milestone_date,
+            bugs_fixed=bugs_fixed,
+            tickets_resolved=tickets_resolved,
+            features_shipped=features_shipped
         )
         
         # Save to file
