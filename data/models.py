@@ -68,6 +68,7 @@ class WeeklyReport(BaseModel):
     # Optional: bugs/tickets resolved this week
     bugs_fixed: int = Field(default=0, ge=0, description="Number of bugs fixed this week")
     tickets_resolved: int = Field(default=0, ge=0, description="Number of tickets resolved this week")
+    tickets_open: int = Field(default=0, ge=0, description="Number of tickets still open")
     features_shipped: int = Field(default=0, ge=0, description="Number of features shipped this week")
     
     @field_validator("week_end")

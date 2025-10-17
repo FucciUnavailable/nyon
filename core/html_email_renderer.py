@@ -92,26 +92,50 @@ class HTMLEmailRenderer:
         if hasattr(report, 'bugs_fixed') or hasattr(report, 'tickets_resolved') or hasattr(report, 'features_shipped'):
             bugs_fixed = getattr(report, 'bugs_fixed', 0)
             tickets_resolved = getattr(report, 'tickets_resolved', 0)
+            tickets_open = getattr(report, 'tickets_open', 0)
             features_shipped = getattr(report, 'features_shipped', 0)
 
-            if bugs_fixed > 0 or tickets_resolved > 0 or features_shipped > 0:
+            if bugs_fixed > 0 or tickets_resolved > 0 or features_shipped > 0 or tickets_open > 0:
                 parts = []
-                if tickets_resolved > 0:
-                    parts.append(f"{tickets_resolved} tickets")
+                if tickets_resolved > 0 or tickets_open > 0:
+                    total_tickets = tickets_resolved + tickets_open
+                    parts.append(f"{tickets_resolved}/{total_tickets} tickets resolved")
                 if bugs_fixed > 0:
-                    parts.append(f"{bugs_fixed} bugs")
+                    parts.append(f"{bugs_fixed} bugs fixed")
                 if features_shipped > 0:
-                    parts.append(f"{features_shipped} features")
+                    parts.append(f"{features_shipped} features shipped")
 
                 bugs_text = ", ".join(parts)
+
+                # Build ticket progress bar if we have ticket data
+                ticket_graph = ""
+                if tickets_resolved > 0 or tickets_open > 0:
+                    total_tickets = tickets_resolved + tickets_open
+                    resolved_pct = int((tickets_resolved / total_tickets) * 100) if total_tickets > 0 else 0
+                    open_pct = 100 - resolved_pct
+
+                    ticket_graph = f"""
+                    <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 12px 0 0 0;">
+                        <tr>
+                            <td width="{resolved_pct}%" style="background-color: #34a853; height: 20px; border-radius: 4px 0 0 4px; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                            <td width="{open_pct}%" style="background-color: #fbbc04; height: 20px; border-radius: 0 4px 4px 0; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                        </tr>
+                    </table>
+                    <div style="font-size: 12px; color: #5f6368; margin: 4px 0 0 0;">
+                        <span style="color: #34a853;">●</span> {tickets_resolved} resolved &nbsp;&nbsp;
+                        <span style="color: #fbbc04;">●</span> {tickets_open} open
+                    </div>
+                    """
+
                 bugs_section = f"""
                 <div style="margin: 32px 0 0 0; padding: 16px 0; border-top: 1px solid #e8eaed;">
                     <div style="font-size: 14px; font-weight: 600; color: #5f6368; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Bugs Fixed & Issues Resolved
+                        🐛 Bugs Fixed & Issues Resolved
                     </div>
-                    <div style="font-size: 15px; color: #202124;">
+                    <div style="font-size: 15px; color: #202124; margin: 0 0 4px 0;">
                         {bugs_text}
                     </div>
+                    {ticket_graph}
                 </div>
                 """
 

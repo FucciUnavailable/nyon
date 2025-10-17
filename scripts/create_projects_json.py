@@ -79,7 +79,8 @@ def create(
         # Bugs/Tickets resolved
         console.print("\n[bold]🐛 Bugs & Tickets (Optional)[/bold]")
         bugs_fixed = int(Prompt.ask("Bugs fixed this week", default="0"))
-        tickets_resolved = int(Prompt.ask("Tickets resolved", default="0"))
+        tickets_resolved = int(Prompt.ask("Tickets resolved this week", default="0"))
+        tickets_open = int(Prompt.ask("Tickets still open", default="0"))
         features_shipped = int(Prompt.ask("Features shipped", default="0"))
 
         # Next milestone
@@ -107,6 +108,7 @@ def create(
             next_milestone_date=next_milestone_date,
             bugs_fixed=bugs_fixed,
             tickets_resolved=tickets_resolved,
+            tickets_open=tickets_open,
             features_shipped=features_shipped
         )
         
