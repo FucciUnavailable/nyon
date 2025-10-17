@@ -208,7 +208,8 @@ class HTMLEmailRenderer:
             Greetings Everyone,<br><br>
             Here's this week's progress across active projects:
         </div>
-
+        <!-- Divider -->
+        <div style="border-top: 1px solid #e8eaed; margin: 24px 0;"></div>
         <!-- Projects -->
         {projects_html}
 
@@ -267,16 +268,16 @@ class HTMLEmailRenderer:
             <div style="display: table; width: 100%; margin: 0 0 12px 0;">
                 <div style="display: table-cell; vertical-align: middle;">
                     <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #202124;">
-                        {index}. {project.name}
+                        {index}. {project.name}    {status_emoji}
                     </h2>
                 </div>
                 <div style="display: table-cell; vertical-align: middle; text-align: right; white-space: nowrap; padding-left: 16px;">
                     <span style="display: inline-block;
                                   padding: 4px 10px;
                                   background-color: {self._get_status_bg(project.status)};
-                                  border-radius: 12px;
-                                  font-size: 13px;
-                                  font-weight: 500;
+                                  border-radius: 16px;
+                                  font-size: 20px;
+                                  font-weight: 700;
                                   color: {status_color};">
                         {status_emoji} {status_display}
                     </span>
