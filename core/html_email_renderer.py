@@ -307,16 +307,21 @@ class HTMLEmailRenderer:
 
         percentage = int((on_track / total) * 100)
 
+        # Use table-based bar for better email client compatibility
+        green_width = percentage
+        gray_width = 100 - percentage
+
         return f"""
         <div style="margin: 24px 0 0 0; padding: 16px 0;">
             <div style="font-size: 14px; font-weight: 600; color: #5f6368; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                Project Health
+                📊 Project Health
             </div>
-            <div style="margin: 0 0 8px 0;">
-                <div style="background-color: #e8eaed; height: 24px; border-radius: 4px; overflow: hidden; position: relative;">
-                    <div style="background-color: #34a853; height: 100%; width: {percentage}%; transition: width 0.3s ease;"></div>
-                </div>
-            </div>
+            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 0 0 8px 0;">
+                <tr>
+                    <td width="{green_width}%" style="background-color: #34a853; height: 24px; border-radius: 4px 0 0 4px; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td width="{gray_width}%" style="background-color: #e8eaed; height: 24px; border-radius: 0 4px 4px 0; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                </tr>
+            </table>
             <div style="font-size: 13px; color: #5f6368;">
                 {on_track} of {total} projects on track or ahead ({percentage}%)
             </div>
