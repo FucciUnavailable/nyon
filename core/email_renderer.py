@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
     # With AI intro
     ai_intro = (
-        "Hi there! This is Claude, Sebastian's AI assistant. "
+        "Hi there! This is Claude, Amine's AI assistant. "
         "This week showed solid progress with our API Platform hitting all milestones. "
         "No major blockers — we're on track for Sprint 15!"
     )
@@ -216,4 +216,3 @@ if __name__ == "__main__":
 
     rprint(f"[bold]SUBJECT:[/bold] {subject}\n")
     rprint(body)
-
