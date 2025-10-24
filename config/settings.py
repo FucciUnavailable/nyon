@@ -87,6 +87,12 @@ class Settings(BaseSettings):
         )
         return [e.strip() for e in emails.split(",") if e.strip()]
 
+    def get_cc_list(self) -> List[str]:
+        """Get list of cc email address comma separated string"""
+        if not self.sendgrid_cc_emails:
+            return []
+        return [e.strip() for e in self.sendgrid_cc_emails.split(",") if e.strip()]
+
 
 # Singleton instance
 settings = Settings()
@@ -100,4 +106,3 @@ if __name__ == "__main__":
     rprint(f"Repos: {settings.get_repos_list()}")
     rprint(f"Recipients: {settings.get_recipients_list()}")
     rprint(f"Output dir: {settings.report_output_dir}")
-
