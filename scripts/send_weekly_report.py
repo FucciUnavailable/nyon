@@ -31,22 +31,18 @@ def send_report(
         "--input",
         "-i",
         help="Path to JSON file containing report data",
-        exists=True
+        exists=True,
     ),
     dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        help="Print email without sending"
+        False, "--dry-run", help="Print email without sending"
     ),
     recipients: Optional[str] = typer.Option(
-        None,
-        "--to",
-        help="Override recipients (comma-separated emails)"
-    )
+        None, "--to", help="Override recipients (comma-separated emails)"
+    ),
 ):
     """
     Generate and send weekly engineering report email.
-    
+
     Reads structured report data from JSON, validates it,
     renders to email format, and sends via SendGrid.
     """
@@ -54,37 +50,39 @@ def send_report(
         # Load and validate report data
         console.print(f"[blue]📂 Loading report from {input_file}[/blue]")
         report = load_report(input_file)
-        
+
         # Render email
         console.print("[blue]✍️  Rendering email template[/blue]")
         renderer = PlainTextEmailRenderer()
         subject, body = renderer.render(report)
-        
+
         # Display preview
         console.print("\n")
-        console.print(Panel(
-            f"[bold]{subject}[/bold]\n\n{body[:500]}...",
-            title="📧 Email Preview",
-            border_style="green"
-        ))
-        
+        console.print(
+            Panel(
+                f"[bold]{subject}[/bold]\n\n{body[:500]}...",
+                title="📧 Email Preview",
+                border_style="green",
+            )
+        )
+
         if dry_run:
             console.print("\n[yellow]DRY RUN - Email not sent[/yellow]")
             return
-        
+
         # Send email
         to_emails = (
             [e.strip() for e in recipients.split(",")]
             if recipients
             else settings.get_recipients_list()
         )
-        
+
         console.print(f"\n[blue]📤 Sending to {len(to_emails)} recipients[/blue]")
-        
+
         asyncio.run(send_email_async(to_emails, subject, body))
-        
+
         console.print("[bold green]✓ Email sent successfully![/bold green]")
-    
+
     except Exception as e:
         console.print(f"[bold red]✗ Error: {str(e)}[/bold red]")
         logger.exception("Failed to send weekly report")
@@ -94,13 +92,13 @@ def send_report(
 def load_report(file_path: Path) -> WeeklyReport:
     """
     Load and validate report data from JSON file.
-    
+
     Args:
         file_path: Path to JSON file
-    
+
     Returns:
         Validated WeeklyReport instance
-    
+
     Raises:
         ValueError: If JSON is invalid or fails validation
     """
@@ -116,8 +114,9 @@ def load_report(file_path: Path) -> WeeklyReport:
 async def send_email_async(to_emails: list[str], subject: str, body: str):
     """Async wrapper for email sending."""
     sender = EmailSender()
-    await sender.send_email(to_emails, subject, body)
+    await sender.send_email(to_emails, subject, body, cc_emails=settings.get_cc_list())
 
 
 if __name__ == "__main__":
     app()
+
