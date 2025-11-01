@@ -11,7 +11,7 @@ from datetime import datetime
 # Add current directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from scripts.generate_weekly_report import generate
+from scripts.generate_weekly_report import generate, parse_schedule
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
 
@@ -68,6 +68,24 @@ def main():
             default="executive"
         )
 
+    # Ask about scheduling (only if sending)
+    schedule = None
+    if not dry_run:
+        should_schedule = Confirm.ask("Schedule email for later?", default=False)
+        if should_schedule:
+            console.print("[dim]Enter time in format: YYYY-MM-DD HH:MM (UTC)[/dim]")
+            console.print("[dim]Note: SendGrid allows scheduling up to 72 hours in advance[/dim]")
+            while True:
+                schedule_input = Prompt.ask("When to send?")
+                try:
+                    # Validate the schedule
+                    parse_schedule(schedule_input)
+                    schedule = schedule_input
+                    break
+                except ValueError as e:
+                    console.print(f"[red]Invalid schedule: {e}[/red]")
+                    console.print("[yellow]Please try again or press Ctrl+C to cancel[/yellow]")
+
     # Step 4: Archive old report if sending
     if not dry_run and Path("projects.json").exists():
         archive = Confirm.ask(
@@ -104,7 +122,8 @@ def main():
             skip_github=skip_github,
             github_days=7,
             style=style,
-            recipients=None
+            recipients=None,
+            schedule=schedule
         )
     except Exception as e:
         console.print(f"\n[bold red]✗ Error: {e}[/bold red]")
@@ -114,10 +133,15 @@ def main():
     if dry_run:
         console.print("\n[yellow]To send the report, run this again and choose 'send'[/yellow]")
     else:
-        console.print("\n[bold green]✓ Report sent successfully![/bold green]")
-        console.print("\n[blue]Next steps:[/blue]")
-        console.print("  1. Check your email")
-        console.print("  2. Create next week's report with: python scripts/create_projects_json.py")
+        if schedule:
+            console.print("\n[blue]Next steps:[/blue]")
+            console.print("  1. Email will be sent at the scheduled time")
+            console.print("  2. Check your SendGrid dashboard to manage scheduled sends")
+            console.print("  3. Create next week's report with: python scripts/create_projects_json.py")
+        else:
+            console.print("\n[blue]Next steps:[/blue]")
+            console.print("  1. Check your email")
+            console.print("  2. Create next week's report with: python scripts/create_projects_json.py")
 
 
 if __name__ == "__main__":

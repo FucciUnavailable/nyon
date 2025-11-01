@@ -42,6 +42,7 @@ class EmailSender:
         subject: str,
         body: str,
         html_body: Optional[str] = None,
+        send_at: Optional[int] = None,
     ) -> bool:
         """
         Send an email to multiple recipients.
@@ -51,6 +52,7 @@ class EmailSender:
             subject: Email subject line
             body: Plain text email body
             html_body: Optional HTML version of body
+            send_at: Optional Unix timestamp for scheduled sending (must be within 72 hours)
 
         Returns:
             True if email sent successfully
@@ -63,7 +65,7 @@ class EmailSender:
             return False
 
         try:
-            message = self._build_message(to_emails, subject, body, html_body)
+            message = self._build_message(to_emails, subject, body, html_body, send_at=send_at)
 
             # SendGrid API is synchronous, run in thread pool
             loop = asyncio.get_event_loop()
@@ -92,6 +94,7 @@ class EmailSender:
         body: str,
         html_body: Optional[str],
         cc_emails: Optional[List[str]] = None,  # cc emails
+        send_at: Optional[int] = None,
     ) -> Mail:
         """
         Build SendGrid message object.
@@ -101,6 +104,8 @@ class EmailSender:
             subject: Email subject
             body: Plain text body
             html_body: Optional HTML body
+            cc_emails: Optional CC email addresses
+            send_at: Optional Unix timestamp for scheduled sending
 
         Returns:
             Configured Mail object
@@ -122,6 +127,10 @@ class EmailSender:
 
         if html_body:
             message.add_content(Content("text/html", html_body))
+
+        # Add scheduled send time if provided
+        if send_at:
+            message.send_at = send_at
 
         return message
 
