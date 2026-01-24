@@ -66,6 +66,11 @@ def generate(
         None,
         "--to",
         help="Override recipients (comma-separated)"
+    ),
+    schedule: Optional[str] = typer.Option(
+        None,
+        "--schedule",
+        help="Schedule send time (ISO format: 2025-11-01 09:00 or Unix timestamp)"
     )
 ):
     """
@@ -129,11 +134,21 @@ def generate(
             if recipients
             else settings.get_recipients_list()
         )
-        
+
+        # Parse schedule if provided
+        send_at = None
+        if schedule:
+            send_at = parse_schedule(schedule)
+            schedule_time = datetime.fromtimestamp(send_at, tz=timezone.utc)
+            console.print(f"\n[blue]📅 Scheduled for {schedule_time.strftime('%Y-%m-%d %H:%M UTC')}[/blue]")
+
         console.print(f"\n[blue]📤 Sending to {len(to_emails)} recipients...[/blue]")
-        asyncio.run(send_email_async(to_emails, subject, html_body, plain_text_body))
-        
-        console.print("[bold green]✓ Report sent successfully![/bold green]")
+        asyncio.run(send_email_async(to_emails, subject, html_body, plain_text_body, send_at))
+
+        if send_at:
+            console.print("[bold green]✓ Report scheduled successfully![/bold green]")
+        else:
+            console.print("[bold green]✓ Report sent successfully![/bold green]")
     
     except Exception as e:
         console.print(f"[bold red]✗ Error: {e}[/bold red]")
@@ -183,10 +198,51 @@ def collect_github_stats(days: int) -> Optional[str]:
         return None
 
 
-async def send_email_async(to_emails: list[str], subject: str, html_body: str, plain_text_body: str):
+def parse_schedule(schedule_str: str) -> int:
+    """
+    Parse schedule string to Unix timestamp.
+
+    Args:
+        schedule_str: ISO datetime string (e.g., "2025-11-01 09:00") or Unix timestamp
+
+    Returns:
+        Unix timestamp
+
+    Raises:
+        ValueError: If schedule format is invalid or time is not within 72 hours
+    """
+    try:
+        # Try parsing as Unix timestamp first
+        timestamp = int(schedule_str)
+    except ValueError:
+        # Parse as ISO datetime
+        try:
+            # Try with seconds
+            dt = datetime.strptime(schedule_str, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            # Try without seconds
+            dt = datetime.strptime(schedule_str, "%Y-%m-%d %H:%M")
+
+        # Assume UTC if no timezone info
+        dt = dt.replace(tzinfo=timezone.utc)
+        timestamp = int(dt.timestamp())
+
+    # Validate: SendGrid requires schedule to be within 72 hours
+    now = int(datetime.now(timezone.utc).timestamp())
+    max_schedule = now + (72 * 3600)  # 72 hours from now
+
+    if timestamp <= now:
+        raise ValueError("Schedule time must be in the future")
+    if timestamp > max_schedule:
+        raise ValueError("Schedule time must be within 72 hours (SendGrid limitation)")
+
+    return timestamp
+
+
+async def send_email_async(to_emails: list[str], subject: str, html_body: str, plain_text_body: str, send_at: Optional[int] = None):
     """Send email via SendGrid with HTML and plain text fallback."""
     sender = EmailSender()
-    await sender.send_email(to_emails, subject, plain_text_body, html_body)
+    await sender.send_email(to_emails, subject, plain_text_body, html_body, send_at=send_at)
 
 
 if __name__ == "__main__":
