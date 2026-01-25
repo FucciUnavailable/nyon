@@ -10,7 +10,7 @@ This system generates and sends weekly engineering progress reports via email. I
 
 ```bash
 # 1. Activate virtual environment
-source venv/bin/activate
+source venv/bin/activate # I have personally switched to uv init > uv sync > uv run recently and it's peak
 
 # 2. Run the interactive workflow
 python weekly_report.py
