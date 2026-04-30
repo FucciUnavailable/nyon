@@ -9,78 +9,53 @@ This system generates and sends weekly engineering progress reports via email. I
 ## Quick Start
 
 ```bash
-# 1. Activate virtual environment
-source venv/bin/activate
-
-# 2. Run the interactive workflow
-python weekly_report.py
+uv sync
+uv pip install -r requirements.txt
+uv run python tui.py
 ```
 
-That's it! The interactive script handles everything.
+That's it. The TUI handles everything — creating reports, editing projects, previewing, and sending.
 
 ---
 
-## Complete Workflow
-
-### Step-by-Step Process
-
-#### **Step 1: Create Project Data**
-
-First, you need to create a `projects.json` file containing your weekly updates.
+## TUI Workflow
 
 ```bash
-python scripts/create_projects_json.py
+uv run python tui.py
 ```
 
-**What it does:**
-- Interactive wizard walks you through questions
-- Auto-detects the current week (Monday-Friday)
-- Collects project updates (name, status, completed work, blockers, etc.)
-- Generates summary bullets automatically
-- Saves everything to `projects.json`
+### Home screen
 
-**Output:** `projects.json` in the root directory
+Shows the status of `projects.json` (lead, team, week, project count) and three buttons:
+
+- **New Report** — start a fresh report from scratch
+- **Edit Report** — edit the current `projects.json`
+- **Preview & Send** — render and send the email
+
+Keyboard shortcuts: `Q` to quit, `Escape` to go back from any screen.
 
 ---
 
-#### **Step 2: Generate & Send Report**
+### Editing a report
 
-Use the main interactive workflow:
+Two tabs:
 
-```bash
-python weekly_report.py
-```
+**Report Details** — lead name, team, week dates, summary bullets, bugs/tickets metrics, next milestone.
 
-**What it does:**
+**Projects** — a table of all projects with Add / Edit / Remove buttons. Each project has: name, status (🟢🟡🔵🔴), status description, completed work, in-progress work, blockers, next-week plans, optional progress % and ETA.
 
-1. **Checks for `projects.json`**
-   - If exists: asks if you want to use it
-   - If missing: prompts you to create one first
+`Ctrl+S` saves and writes `projects.json`.
 
-2. **Choose mode**
-   - **Preview**: Shows what the email will look like (dry-run, doesn't send)
-   - **Send**: Actually sends the email to recipients
+---
 
-3. **Configure options**
-   - **Include AI summary?** (Yes/No) - Adds 2-3 line AI-written intro
-   - **Include GitHub stats?** (Yes/No) - Adds last 7 days of GitHub activity
-   - **AI style**: executive / casual / detailed
+### Preview & Send
 
-4. **Archive (only when sending)**
-   - Offers to save the report to `weekly_logs/`
-   - Saves as `report_YYYY-MM-DD.json`
-   - This creates a historical log of all sent reports
+Left panel: toggles for AI summary and GitHub stats, AI style selector (executive / casual / detailed), optional schedule field (YYYY-MM-DD HH:MM UTC).
 
-5. **Generate email**
-   - Loads project data from `projects.json`
-   - Generates AI summary (if enabled)
-   - Collects GitHub stats (if enabled)
-   - Renders complete email
-   - Shows preview
+Right panel: rendered email preview.
 
-6. **Send email (if not dry-run)**
-   - Sends via SendGrid to configured recipients
-   - Displays success confirmation
+- **Generate Preview** — renders the email without sending
+- **Send Now** — sends immediately (or at the scheduled time if a schedule is set)
 
 ---
 
@@ -366,7 +341,8 @@ LOG_LEVEL=INFO
 
 ```
 nyon/
-├── weekly_report.py              # Main interactive entry point
+├── tui.py                        # TUI entry point (start here)
+├── weekly_report.py              # Legacy CLI entry point
 ├── projects.json                 # Current week's report data (generated)
 ├── weekly_logs/                  # Archived reports (auto-created)
 │   ├── report_2025-10-07.json
@@ -420,49 +396,40 @@ nyon/
 
 ### 1. First Time Setup
 ```bash
-# Install dependencies
-source venv/bin/activate
-pip install -r requirements.txt
+# Clone and install
+uv sync
+uv pip install -r requirements.txt
 
-# Configure .env file
-nano .env  # Add your API keys
+# Configure .env
+cp .env.example .env
+# Fill in GITHUB_TOKEN, SENDGRID_API_KEY, OPENAI_API_KEY, etc.
 
-# Test configuration
-python config/settings.py
-
-# Create first report
-python scripts/create_projects_json.py
-python weekly_report.py
-# Choose "preview" to test
+# Launch the TUI
+uv run python tui.py
+# Hit "New Report" to create your first report, then "Preview & Send" to test
 ```
 
 ### 2. Weekly Report Routine
 ```bash
-# Create this week's data
-python scripts/create_projects_json.py
-
-# Preview before sending
-python weekly_report.py
-# Choose "preview"
-
-# If happy, send it
-python weekly_report.py
-# Choose "send"
-# Confirm archiving
+uv run python tui.py
+# → New Report (or Edit Report if updating last week's)
+# → Fill in project details, save
+# → Preview & Send → Generate Preview
+# → Send Now when ready
 ```
 
 ### 3. Send Without AI/GitHub
 ```bash
-python weekly_report.py
-# Choose "send"
-# Choose "No" for AI summary
-# Choose "No" for GitHub stats
+uv run python tui.py
+# → Preview & Send
+# → Toggle off AI Summary and GitHub Stats
+# → Generate Preview, then Send Now
 ```
 
 ### 4. Manual CLI (Advanced)
 ```bash
 # Full control over all options
-python -m scripts.generate_weekly_report \
+uv run python -m scripts.generate_weekly_report \
   --input projects.json \
   --style casual \
   --github-days 14 \
