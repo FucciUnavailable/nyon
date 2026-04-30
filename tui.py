@@ -176,7 +176,11 @@ class ReportFormScreen(Screen):
         yield Footer()
 
     def on_mount(self) -> None:
-        self._refresh_table()
+        self.call_after_refresh(self._refresh_table)
+
+    def on_tabbed_content_tab_activated(self, event: TabbedContent.TabActivated) -> None:
+        if str(event.tab.id).endswith("tab-projects"):
+            self._refresh_table()
 
     def _refresh_table(self) -> None:
         table = self.query_one("#projects-table", DataTable)
@@ -494,8 +498,11 @@ class NyonApp(App):
     ReportFormScreen TextArea {
         height: 5;
     }
+    ReportFormScreen TabPane {
+        height: 1fr;
+    }
     #projects-tab-content {
-        height: 100%;
+        height: 1fr;
     }
     #projects-table {
         height: 1fr;
